@@ -11,6 +11,14 @@ const userData = [
     }
 ]
 
+const productData = [
+    {
+        "id": "1",
+        "name": "sugar",
+        "price": "sara123@gmail.com",
+    }
+]
+
 app.get("/users", (req, res) => {
     res.status(200).send(userData);
 }); 
@@ -52,7 +60,6 @@ app.put("/users/:id", (req, res) => {
         return res.status(404).send("user not found");
     };
 
-    // console.log(req.body.email_or_phone);
     if(name){theUser.name = name};
     if(email_or_phone){theUser.email_or_phone = email_or_phone};
     if(password){theUser.password = password};
@@ -60,6 +67,8 @@ app.put("/users/:id", (req, res) => {
 
     res.status(201).send(userData);
 });
+
+
 
 
 
