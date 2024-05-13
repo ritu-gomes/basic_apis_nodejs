@@ -8,19 +8,32 @@ const userData = [
         "name": "Sara",
         "email_or_phone": "sara123@gmail.com",
         "password": "laal33&"
+    },
+    {
+        "id": "2",
+        "name": "elsa",
+        "email_or_phone": "elsa55@gmail.com",
+        "password": "kfg33&"
     }
 ]
 
 const productData = [
     {
         "id": "1",
-        "name": "sugar",
-        "price": "sara123@gmail.com",
-    }
+        "name": "crop_top",
+        "price": 500,
+        "color": "yellow"
+    },
+    {
+        "id": "2",
+        "name": "high_west_jeans",
+        "price": 350,
+        "color": "blue"
+    },
 ]
 
 app.get("/users", (req, res) => {
-    res.status(200).send(userData);
+    res.status(201).send(userData);
 }); 
 
 app.post("/users", (req, res) => {
@@ -69,8 +82,59 @@ app.put("/users/:id", (req, res) => {
 });
 
 
+app.get("/products", (req, res) => {
+    res.status(201).send(productData);
+});
 
+app.get("/products/:id", (req, res) => {
+    const id = req.params.id;
+    const the_product = productData.find(product => product.id == id);
+    // console.log(the_product);
+    if(!the_product){return res.status(404).send("product not found");};
+    res.status(201).send(the_product);
 
+});
+
+app.post("/products", (req, res) => {
+    const {id, name, price, color } = req.body;
+
+    const newProduct = {
+        id: id,
+        name: name,
+        price: price,
+        color: color
+    };
+
+    productData.push(newProduct);
+    res.status(201).send(productData);
+});
+
+app.delete("/products/:id", (req, res) => {
+    const id = req.params.id;
+    const aimedProduct = productData.find(product => product.id == id);
+    if(!aimedProduct){res.status(404).send("product not found")};
+    const aimedProductIndex = productData.indexOf(aimedProduct);
+
+    productData.splice(aimedProductIndex,1);
+    res.status(201).send(productData);
+
+});
+
+app.put("/products/:id", (req, res) => {
+    const id = req.params.id;
+    const {name, price, color } = req.body;
+
+    const aimedProduct = productData.find(product => product.id == id);
+
+    if(!aimedProduct){ return res.send(404).send("product not found")};
+
+    if (name) { aimedProduct.name = name };
+    if (price) { aimedProduct.price = price };
+    if (color) { aimedProduct.color = color };
+    // aimedProduct = {...aimedProduct, name, price, color};
+
+    res.status(201).send(aimedProduct);
+});
 
 app.listen(3000, () => {
 
