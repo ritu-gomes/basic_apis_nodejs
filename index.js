@@ -1,5 +1,6 @@
 const express = require('express');
 const app = express();
+const {userSchema} = require('./userSchema');
 
 app.use(express.json());
 const userData = [
@@ -15,8 +16,7 @@ const userData = [
         "email_or_phone": "elsa55@gmail.com",
         "password": "kfg33&"
     }
-]
-
+];
 const productData = [
     {
         "id": "1",
@@ -30,24 +30,41 @@ const productData = [
         "price": 350,
         "color": "blue"
     },
-]
+];
+
+// const validateUser = (user) => {
+//     userSchema.validate(user)
+//     .then((res) => {
+//         return null;
+//     })
+//     .catch((err) => {
+//         return err.arrors[0];
+//     })
+// }
+
 
 app.get("/users", (req, res) => {
     res.status(201).send(userData);
 }); 
 
-app.post("/users", (req, res) => {
+app.post("/users", async (req, res) => {
     const { id, name, email_or_phone, password } = req.body;
-    // console.log(req.body.email_or_phone);
-    const newUser = {
-        id: id,
-        name: name,
-        email_or_phone: email_or_phone,
-        password: password
-    };
 
-    userData.push(newUser);
-    res.status(201).send(userData);
+    userSchema.validate({name, email_or_phone})
+    .then((result) => {
+        const newUser = {
+            id: id,
+            name: name,
+            email_or_phone: email_or_phone,
+            password: password
+        };
+        userData.push(newUser);
+        res.status(201).send(userData);
+    })
+    .catch(err => {
+        return res.status(400).send(err.errors[0]);
+    });
+
 });
 
 app.delete("/users/:id", (req, res) => {
@@ -135,6 +152,7 @@ app.put("/products/:id", (req, res) => {
 
     res.status(201).send(aimedProduct);
 });
+
 
 app.listen(3000, () => {
 
