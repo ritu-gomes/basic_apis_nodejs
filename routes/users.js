@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const {userSchema} = require('../userSchema');
+const {userSchema} = require('../schema/userSchema');
 
 const userData = [
     {
