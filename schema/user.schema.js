@@ -28,3 +28,17 @@ const registerSchema = object({
 });
 
 module.exports.registerSchema = registerSchema;
+
+const updateSchema = object({
+    username: string()
+        .min(3, 'user_name should at leat contain 3 letters')
+        .required('this field can not be empty'),
+    email: string()
+        .email('this field should contain a valid email address')
+        .max(100, 'This field must not exceed 100 characters')
+        .required('must provide a valid email address')
+        .test('is-valid-email-length', 'the part before @ must not exceed 64 characters', email => isEmailLengthValid(email))
+
+});
+
+module.exports.updateSchema = updateSchema;

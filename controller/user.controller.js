@@ -1,4 +1,4 @@
-const { validateUserRegistration } = require('../validations/user.validate');
+const { validateUserRegistration, validateUserInfoChange } = require('../validations/user.validate');
 const { registerSchema } = require('../schema/user.schema');
 
 // const { User } = require('../models/dbmodel');
@@ -19,6 +19,18 @@ function allUsers(req, res ) {
 }
 
 module.exports.allUsers = allUsers;
+
+const singleUser = (req, res) => {
+    const id = req.params.id;
+    const theUser = usersData.find(user => user.id ==id);
+    if(!theUser){
+        return res.status(404).send("user not founc");
+    };
+    res.status(200).send(theUser);
+
+};
+
+module.exports.singleUser = singleUser;
 
 async function registration(req, res) {
     const { username, email, password, confirm_password } = req.body;
@@ -70,20 +82,37 @@ function deleteUser(req, res) {
 
 module.exports.deleteUser = deleteUser;
 
-// router.put("/:id", (req, res) => {
-//     const id = req.params.id;
-//     const { name, email_or_phone, password } = req.body;
+async function changeUserInfo(req, res ) {
 
-//     const theUser = userData.find(user => user.id == id);
+    const id = req.params.id;
+    const { username, email } = req.body;
 
-//     if (!theUser) {
-//         return res.status(404).send("user not found");
-//     };
+    try {
+        const error = await validateUserInfoChange({username, email});
 
-//     if(name){theUser.name = name};
-//     if(email_or_phone){theUser.email_or_phone = email_or_phone};
-//     if(password){theUser.password = password};
-//     // theUser = { ...theUser, name, email_or_phone, password};
+        if(error) return res.status(400).send(error);
 
-//     res.status(201).send(userData);
-// });
+        // const user = await User.findOne({
+        //     where: {
+        //         email
+        //     }
+        // });
+
+        const theUser = usersData.find(user => user.id == id);
+
+        if (!theUser) {
+            return res.status(404).send("user not found");
+        };
+
+        if(username){theUser.username = username};
+        if(email){theUser.email = email};
+        res.status(201).send(usersData);
+
+    } catch (err) {
+        console.log(err);
+        res.status(500).send('internal server error');
+    }
+
+};
+
+module.exports.changeUserInfo = changeUserInfo;
