@@ -1,8 +1,8 @@
 const { validateUserRegistration, validateUserInfoChange } = require('../validations/user.validate');
 const { registerSchema } = require('../schema/user.schema');
 
-// const { User } = require('../models/dbmodel');
-// const { where } = require('sequelize');
+const { User } = require('../models/dbmodel');
+const { where } = require('sequelize');
 
 
 const usersData = [
@@ -14,8 +14,11 @@ const usersData = [
     }
 ];
 
-function allUsers(req, res ) {
-    res.status(200).send(usersData);
+async function allUsers(req, res ) {
+    const users = await User.findAll();
+    console.log(users.every(user => user instanceof User)); // true
+    console.log('All users:', JSON.stringify(users, null, 2));
+    res.status(200).send(users);
 }
 
 module.exports.allUsers = allUsers;
@@ -38,25 +41,24 @@ async function registration(req, res) {
     try {
         const error = await validateUserRegistration({username, email, password, confirm_password});
 
-        // console.log(error);
-
         if(error) return res.status(400).send(error);
 
-        // const user = await User.findOne({
-        //     where: {
-        //         email
-        //     }
-        // });
+        const userExistence = await User.findOne({
+            where: {
+                email
+            }
+        });
+        
+        if(userExistence) return res.status(400).send('already registered with this email');
 
-        const newUser = {
-            id: usersData.length+1,
-            username: username,
-            email: email,
-            password: password
-        }
-        usersData.push(newUser);
+        const newUser = await User.create({
+            username,
+            email,
+            password
+        });
 
-        res.status(201).send(usersData);
+        // usersData.push(newUser);
+        res.status(201).send(newUser);
 
     } catch (err) {
         console.log(err);
