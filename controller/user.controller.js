@@ -5,14 +5,14 @@ const { User } = require('../models/dbmodel');
 const { where } = require('sequelize');
 
 
-const usersData = [
-    {
-        id: 1,
-        username: "cody",
-        email: "codydaboss@gmail.com",
-        password: "codtheboss345"
-    }
-];
+// const usersData = [
+    // {
+    //     id: 1,
+    //     username: "cody",
+    //     email: "codydaboss@gmail.com",
+    //     password: "codtheboss345"
+    // }
+// ];
 
 async function allUsers(req, res ) {
     const users = await User.findAll();
@@ -23,11 +23,15 @@ async function allUsers(req, res ) {
 
 module.exports.allUsers = allUsers;
 
-const singleUser = (req, res) => {
+const singleUser = async (req, res) => {
     const id = req.params.id;
-    const theUser = usersData.find(user => user.id ==id);
+    const theUser = await User.findOne({
+        where: {
+            id
+        }
+    });
     if(!theUser){
-        return res.status(404).send("user not founc");
+        return res.status(404).send("user not found");
     };
     res.status(200).send(theUser);
 
@@ -69,17 +73,24 @@ async function registration(req, res) {
 
 module.exports.registration = registration;
 
-function deleteUser(req, res) {
+async function deleteUser(req, res) {
     const id = req.params.id;
-    const theUser = usersData.find(user => user.id == id);
+    const theUser = User.findOne({
+        where: {
+            id
+        }
+    });
     // console.log(theUser);
     if(!theUser){
         return res.status(404).send("user not found");
     };
-    const userIndex = usersData.indexOf(theUser);
-    // console.log(userIndex);
-    usersData.splice(userIndex,1);
-    res.status(201).send(usersData);
+    
+    await User.destroy({
+        where: {
+            id
+        }
+    });
+    res.status(200).send(`userId: ${id} has been deleted suceessfully`);
 };
 
 module.exports.deleteUser = deleteUser;
@@ -100,15 +111,33 @@ async function changeUserInfo(req, res ) {
         //     }
         // });
 
-        const theUser = usersData.find(user => user.id == id);
+        const theUser = User.findOne({
+            where: {
+                id
+            }
+        });
 
         if (!theUser) {
             return res.status(404).send("user not found");
         };
 
-        if(username){theUser.username = username};
-        if(email){theUser.email = email};
-        res.status(201).send(usersData);
+        if(username){await User.update(
+            {username},
+            {
+                where: {
+                    id
+                }
+            }
+        )};
+        if(email){await User.update(
+            {email},
+            {
+                where: {
+                    id
+                }
+            }
+        )};
+        res.status(201).send(theUser);
 
     } catch (err) {
         console.log(err);
