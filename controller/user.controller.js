@@ -1,18 +1,7 @@
 const { validateUserRegistration, validateUserInfoChange } = require('../validations/user.validate');
-const { registerSchema } = require('../schema/user.schema');
-
+// const { registerSchema } = require('../schema/user.schema');
 const { User } = require('../models/dbmodel');
 const { where } = require('sequelize');
-
-
-// const usersData = [
-    // {
-    //     id: 1,
-    //     username: "cody",
-    //     email: "codydaboss@gmail.com",
-    //     password: "codtheboss345"
-    // }
-// ];
 
 async function allUsers(req, res ) {
     const users = await User.findAll();
@@ -75,7 +64,7 @@ module.exports.registration = registration;
 
 async function deleteUser(req, res) {
     const id = req.params.id;
-    const theUser = User.findOne({
+    const theUser = await User.findOne({
         where: {
             id
         }
@@ -121,22 +110,23 @@ async function changeUserInfo(req, res ) {
             return res.status(404).send("user not found");
         };
 
-        if(username){await User.update(
+        if(username) { User.update(
             {username},
             {
-                where: {
+                where:{
                     id
                 }
             }
-        )};
-        if(email){await User.update(
-            {email},
-            {
-                where: {
+        );
+        }
+        if(email) {
+            User.update(
+                {email},
+                {where: {
                     id
-                }
-            }
-        )};
+                }}
+            );
+        }
         res.status(201).send(theUser);
 
     } catch (err) {

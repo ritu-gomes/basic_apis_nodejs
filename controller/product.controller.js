@@ -1,32 +1,29 @@
-const {validateProductInfo} = require('../validations/product.validate');
+const {validateProductInfo, validateProductUpdate} = require('../validations/product.validate');
+const {Product} = require('../models/dbmodel');
 
-const productsData = [
-    {
-        "id": "1",
-        "proname": "crop_top",
-        "price": 500,
-        "color": "yellow"
-    },
-    {
-        "id": "2",
-        "proname": "high_west_jeans",
-        "price": 350,
-        "color": "blue"
-    },
-];
+const {where} = require('sequelize');
 
-const allProducts = (req, res) => {
-    res.status(200).send(productsData);
+
+const allProducts = async (req, res) => {
+    const products = await Product.findAll();
+    console.log(products.every(pro => pro instanceof Product)); // true
+    console.log('All products:', JSON.stringify(products, null, 2));
+    res.status(200).send(products);
 };
 
 module.exports.allProducts = allProducts;
 
-const singleProduct = (req, res) => {
+const singleProduct = async (req, res) => {
     const id = req.params.id;
-    const theProduct = productsData.find(product => product.id == id);
+    
+    const theProduct = await Product.findOne({
+        where: {
+            id
+        }
+    });
 
     if (!theProduct) {
-        return res.status(404).send("user not found");
+        return res.status(404).send("product not found");
     };
     
     res.status(200).send(theProduct);
@@ -42,21 +39,21 @@ const addProduct = async (req, res) => {
 
         if(error) return res.status(400).send(error);
 
-        // const Product = await Product.findOne({
-        //     where: {
-        //         email
-        //     }
-        // });
+        const productExistence = await Product.findOne({
+            where: {
+                proname
+            }
+        });
+        
+        if(productExistence) return res.status(400).send('this product is already in the list');
 
-        const newProduct = {
-            id: productsData.length+1,
+        const newProduct = Product.create({
             proname: proname,
             price: price,
             color: color
-        }
-        productsData.push(newProduct);
-
-        res.status(201).send(productsData);
+        });
+       
+        res.status(201).send(newProduct);
 
     } catch (err) {
         console.log(err);
@@ -67,17 +64,24 @@ const addProduct = async (req, res) => {
 
 module.exports.addProduct = addProduct;
 
-function deleteProduct(req, res) {
+async function deleteProduct(req, res) {
     const id = req.params.id;
-    const theProduct = productsData.find(product => product.id == id);
+    const theProduct = await Product.findOne({
+        where: {
+            id
+        }
+    });
     // console.log(theProduct);
     if(!theProduct){
-        return res.status(404).send("Product not found");
+        return res.status(404).send("product not found");
     };
-    const productIndex = productsData.indexOf(theProduct);
-    // console.log(ProductIndex);
-    productsData.splice(productIndex,1);
-    res.status(201).send(productsData);
+    
+    await Product.destroy({
+        where: {
+            id
+        }
+    });
+    res.status(200).send(`productId: ${id} has been deleted suceessfully`);
 };
 
 module.exports.deleteProduct = deleteProduct;
@@ -88,27 +92,46 @@ async function changeProductInfo(req, res ) {
     const { proname, price, color } = req.body;
 
     try {
-        const error = await validateProductInfo({proname, price, color});
+        const error = await validateProductUpdate({proname, price, color});
         console.log(error);
         if(error) return res.status(400).send(error);
 
-        // const user = await User.findOne({
-        //     where: {
-        //         email
-        //     }
-        // });
-
-        const theProduct = productsData.find(product => product.id == id);
+        const theProduct = Product.findOne({
+            where:{
+                id
+            }
+        });
 
         if (!theProduct) {
             return res.status(404).send("user not found");
         };
 
-        if(proname){theProduct.proname = proname};
-        if(price){theProduct.price = price};
-        if(color){theProduct.color = color};
-    // theUser = { ...theUser, name, email_or_phone, password};
-        res.status(201).send(productsData);
+        if(proname){
+            Product.update(
+                {proname},
+                {where: {
+                    id
+                }}
+            );
+        };
+        if(price){
+            Product.update(
+                {price},
+                {where: {
+                    id
+                }}
+            );
+        };
+        if(color){
+            Product.update(
+                {color},
+                {where: {
+                    id
+                }}
+            );
+        };
+
+        res.status(201).send(`product: ${id} has been updated suceessfully`);
 
     } catch (err) {
         console.log(err);

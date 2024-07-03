@@ -24,3 +24,19 @@ const sequelize = new Sequelize('user_test_db', 'root', '', {
        }
     }
   );
+
+  exports.Product = sequelize.define(
+    'products', {
+      id: { type: DataTypes.INTEGER, autoIncrement: true,
+        primaryKey: true },
+      proname: { type: DataTypes.STRING,
+        allowNull: false
+       },
+      price: { type: DataTypes.INTEGER,
+        allowNull: false
+       },
+      color: { type: DataTypes.STRING,
+        allowNull: false
+       }
+    }
+  );
