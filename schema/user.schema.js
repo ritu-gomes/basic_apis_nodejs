@@ -24,6 +24,7 @@ const registerSchema = object({
         .required('Must create a password'),
     confirm_password: string()
         .oneOf([ref('password'),null],'passwords did not match')
+        .required('must confirm your password')
 
 });
 

@@ -92,10 +92,6 @@ async function changeProductInfo(req, res ) {
     const { proname, price, color } = req.body;
 
     try {
-        const error = await validateProductUpdate({proname, price, color});
-        console.log(error);
-        if(error) return res.status(400).send(error);
-
         const theProduct = Product.findOne({
             where:{
                 id

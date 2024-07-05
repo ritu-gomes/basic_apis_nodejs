@@ -28,14 +28,10 @@ const singleUser = async (req, res) => {
 
 module.exports.singleUser = singleUser;
 
-async function registration(req, res) {
-    const { username, email, password, confirm_password } = req.body;
+async function registration(req, res) { 
+    const { username, email, password } = req.body;
 
     try {
-        const error = await validateUserRegistration({username, email, password, confirm_password});
-
-        if(error) return res.status(400).send(error);
-
         const userExistence = await User.findOne({
             where: {
                 email
@@ -90,16 +86,6 @@ async function changeUserInfo(req, res ) {
     const { username, email } = req.body;
 
     try {
-        const error = await validateUserInfoChange({username, email});
-
-        if(error) return res.status(400).send(error);
-
-        // const user = await User.findOne({
-        //     where: {
-        //         email
-        //     }
-        // });
-
         const theUser = User.findOne({
             where: {
                 id
