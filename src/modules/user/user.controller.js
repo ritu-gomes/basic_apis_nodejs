@@ -1,5 +1,5 @@
-const  User = require('../models/user.model');
-const UserType = require('../models/user-type.model');
+const  User = require('./user.model');
+const UserType = require('./user-type.model');
 const { where } = require('sequelize');
 
 async function allUsers(req, res ) {
@@ -9,8 +9,7 @@ async function allUsers(req, res ) {
             as: "user_types"
         }]
     });
-    console.log(users.every(user => user instanceof User)); // true
-    console.log('All users:', JSON.stringify(users, null, 2));
+    
     res.status(200).send(users);
 }
 

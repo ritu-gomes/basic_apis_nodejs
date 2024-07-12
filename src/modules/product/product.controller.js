@@ -1,13 +1,10 @@
-const {validateProductInfo, validateProductUpdate} = require('../validations/product.validate');
-const {Product} = require('../models/dbmodel');
-
+const { Product } = require('./product.model');
 const {where} = require('sequelize');
 
 
 const allProducts = async (req, res) => {
     const products = await Product.findAll();
-    console.log(products.every(pro => pro instanceof Product)); // true
-    console.log('All products:', JSON.stringify(products, null, 2));
+    
     res.status(200).send(products);
 };
 
