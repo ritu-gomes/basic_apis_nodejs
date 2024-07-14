@@ -1,6 +1,40 @@
 const  User = require('./user.model');
 const UserType = require('./user-type.model');
 const { where } = require('sequelize');
+const jwt = require('jsonwebtoken');
+// const bcrypt = require('bcryptjs');
+
+async function login(req, res) {
+    try {
+        const { email, password } = req.body;
+        const theUser = await User.findOne({
+            where: {
+                email
+            }
+        });
+
+        if(!theUser || !theUser.password || !theUser.validPassword){
+            return res.status(400).send("Invalid email or  password.")
+        };
+
+        //making a token and returning it
+        const payload = {
+            user_id: theUser.id,
+            email: theUser.email
+          };
+        const token = jwt.sign(payload, 'iamhabib', { expiresIn: '1h' });
+
+        theUser.dataValues.token = token;
+
+        return res.status(200).send(theUser);
+    }
+    catch (err) {
+        console.log(err);
+        res.status(500).send('internal server error');
+    }
+};
+
+module.exports.login = login;
 
 async function allUsers(req, res ) {
     const users = await User.findAll({
