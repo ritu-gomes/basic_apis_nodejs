@@ -13,20 +13,16 @@ async function login(req, res) {
             }
         });
 
-        if(!theUser || !theUser.password || !theUser.validPassword){
+        if(!theUser || !theUser.password || !theUser.validPassword(password)){
             return res.status(400).send("Invalid email or  password.")
         };
 
         //making a token and returning it
-        const payload = {
-            user_id: theUser.id,
-            email: theUser.email
-          };
-        const token = jwt.sign(payload, 'iamhabib', { expiresIn: '1h' });
+        const token = jwt.sign({id: theUser.id}, process.env.TOKEN_SECRET, { expiresIn: '1h' });
 
-        theUser.dataValues.token = token;
+        res.cookie("access_token", token, {httpOnly: true, sameSite: true, signed: true});
 
-        return res.status(200).send(theUser);
+        res.status(200).send(theUser);
     }
     catch (err) {
         console.log(err);

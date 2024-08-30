@@ -4,11 +4,12 @@ const path = require('path');
 const controller = require('./user.controller');
 const validate = require(path.join(process.cwd(), "src/modules/core/middlewares/validate.js"));
 const {registerSchema, updateSchema} = require('./user.schema');
-const auth = require('./user-authentication.middleware');
+const { AuthStrategy } = require('../user/user-authentication.middleware');
+// const auth = require('./user-authentication.middleware');
 
 module.exports = app => {
     app.route("/api/users")
-        .get(auth, controller.allUsers)
+        .get(AuthStrategy, controller.allUsers)
         .post(validate(registerSchema) ,controller.registration);
     app.route("/api/users/:id")
         .get(controller.singleUser)
